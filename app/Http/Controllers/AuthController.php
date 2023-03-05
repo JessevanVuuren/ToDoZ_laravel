@@ -6,8 +6,11 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\Sanctum;
 
 class AuthController extends Controller
 {
@@ -52,5 +55,17 @@ class AuthController extends Controller
         return $this->success([
             "message" => "You have successfully been logged out"
         ]);
+    }
+
+    public function validate_token(Request $request)
+    {
+        $token = $request->bearerToken();
+        $model = Sanctum::$personalAccessTokenModel;
+        $user = $model::findToken($token);
+
+        if ($user) {
+            return $this->success("", "valid token");
+        }
+        return $this->success("", "invalid token");
     }
 }
